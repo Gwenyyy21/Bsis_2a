@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aking Personal na Website</title>
+  <style>
+    :root{
+      --bg:#f4f4f4;
+      --dark:#333;
+      --muted:#444;
+      --accent:#222;
+      --white:#fff;
+      --card:#ffffff;
+      --card-contrast:#fbfbfb;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: Arial, sans-serif;
+      background:var(--bg);
+      color:#111;
+      font-size:16px;
+    }
+
+    /* Page skeleton */
+    body{ display:flex; flex-direction:column; min-height:100vh; }
+    header{ background:var(--dark); color:var(--white); padding:16px 18px; text-align:center; }
+    header h1{ margin:0; font-size:22px; }
+
+    nav{
+      background:var(--muted);
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      padding:10px;
+    }
+    nav a{
+      color:var(--white);
+      padding:12px 18px;
+      text-decoration:none;
+      cursor:pointer;
+      border-radius:8px;
+      display:inline-block;
+      user-select:none;
+      outline:none;
+      font-weight:700;
+      font-size:15px;
+    }
+    nav a:hover{ background:#606060; }
+    nav a.active{ background:var(--accent); }
+
+    main{
+      flex:1 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      width:100%;
+    }
+
+    /* Section card */
+    section{
+      background:var(--card);
+      border-radius:12px;
+      padding:34px;
+      max-width:1100px;
+      width:100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      display:none;
+      box-sizing:border-box;
+    }
+    section.active{ display:block; }
+
+    .content{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      gap:16px;
+    }
+
+    h2{ margin:0 0 6px 0; font-size:22px; }
+    p{ margin:0; font-size:16.5px; color:#222; }
+
+    /* HOME - BIG banner */
+    .home-banner{
+      width:100%;
+      max-width:1000px;
+      height:360px;
+      border-radius:12px;
+      overflow:hidden;
+      display:block;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    .home-banner img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    /* PROFILE */
+    .profile-card{
+      width:560px;
+      max-width:96%;
+      background:var(--card-contrast);
+      padding:22px 24px;
+      border-radius:12px;
+      box-shadow: 0 12px 34px rgba(0,0,0,0.08);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:16px;
+      box-sizing:border-box;
+      margin:0 auto;
+    }
+
+    .avatar{
+      width:220px;
+      height:220px;
+      border-radius:50%;
+      overflow:hidden;
+      flex-shrink:0;
+      border:5px solid #fff;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+      background:#eee;
+    }
+    .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .biodata{ text-align:center; line-height:1.55; width:100%; }
+    .biodata p{ margin:6px 0; font-size:17px; }
+    .biodata strong{ color:#111; font-weight:700; }
+
+    /* GALLERY - grid with larger thumbnails */
+    .gallery-list{
+      list-style:none;
+      padding:0;
+      margin:0;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap:20px;
+      width:100%;
+      max-width:1000px;
+      align-items:start;
+    }
+
+    .gallery-item{
+      border-radius:12px;
+      background:#fafafa;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+      overflow:hidden;
+      text-align:center;
+      cursor:pointer;
+      transition: transform .16s ease, box-shadow .16s ease;
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      outline: none;
+    }
+    .gallery-item:focus{ box-shadow: 0 14px 36px rgba(0,0,0,0.12); transform: translateY(-6px); }
+
+    .gallery-item img{
+      width:100%;
+      height:260px; /* bigger thumbnails */
+      object-fit:cover;
+      display:block;
+      flex:0 0 auto;
+    }
+
+    .gallery-caption{ padding:12px 10px; font-size:15px; flex:1 0 auto; }
+
+    footer{
+      text-align:center;
+      padding:14px 12px;
+      background:var(--dark);
+      color:var(--white);
+      margin-top:12px;
+      flex:0 0 auto;
+    }
+
+    /* ===== LIGHTBOX styles ===== */
+    .lightbox-overlay{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.85);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:2000;
+      padding:20px;
+    }
+    .lightbox-overlay.visible{ display:flex; }
+
+    .lightbox-inner{
+      max-width:1200px;
+      max-height:90vh;
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+      position:relative;
+    }
+
+    .lightbox-img{
+      max-width:100%;
+      max-height:calc(90vh - 96px);
+      width:auto;
+      height:auto;
+      border-radius:8px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      object-fit:contain;
+      display:block;
+    }
+
+    .lightbox-caption{
+      color:#fff;
+      font-size:16px;
+      text-align:center;
+      max-width:95%;
+    }
+
+    .lightbox-close, .lightbox-prev, .lightbox-next{
+      position:fixed;
+      background:rgba(0,0,0,0.55);
+      border:0;
+      color:#fff;
+      padding:10px 12px;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:20px;
+      z-index:2100;
+    }
+    .lightbox-close{ top:20px; right:20px; }
+    .lightbox-prev{ left:18px; top:50%; transform:translateY(-50%); }
+    .lightbox-next{ right:18px; top:50%; transform:translateY(-50%); }
+
+    .visually-hidden{ position:absolute !important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap; }
+
+    /* Responsive */
+    @media (max-width:1000px){
+      .gallery-item img{ height:220px; }
+      .home-banner{ height:320px; }
+      .profile-card{ width:520px; }
+    }
+    @media (max-width:780px){
+      .gallery-item img{ height:180px; }
+      .avatar{ width:180px; height:180px; }
+      .home-banner{ height:260px; }
+    }
+    @media (max-width:480px){
+      .gallery-item img{ height:120px; }
+      .avatar{ width:140px; height:140px; }
+      .home-banner{ height:180px; }
+      .lightbox-close, .lightbox-prev, .lightbox-next{ font-size:18px; padding:8px 10px; }
+      .lightbox-caption{ font-size:14px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Angelica website</h1>
+  </header>
+
+  <nav role="navigation" aria-label="Primary">
+    <a href="#" data-section="home" class="active" aria-selected="true" role="button" tabindex="0">Home</a>
+    <a href="#" data-section="profile" aria-selected="false" role="button" tabindex="0">Profile</a>
+    <a href="#" data-section="gallery" aria-selected="false" role="button" tabindex="0">Gallery</a>
+    <a href="#" data-section="about" aria-selected="false" role="button" tabindex="0">About</a>
+  </nav>
+
+  <main>
+    <section id="home" class="active" aria-labelledby="home-title" role="region">
+      <div class="content">
+        <h2 id="home-title">Angelica Website</h2>
+        <p>Welcome to my Website, this is my simple website and you can see my information here. Let's explore my website.</p>
+
+        <!-- BIG Home banner -->
+        <a class="home-banner" href="#" aria-label="Home banner image (sample)">
+          <img alt="Home banner - landscape" src="images/pic1.jpg" >
+        </a>
+      </div>
+    </section>
+
+    <section id="profile" aria-labelledby="profile-title" role="region">
+      <div class="content">
+        <h2 id="profile-title">Profile</h2>
+
+        <!-- Profile card -->
+        <div class="profile-card" role="group" aria-label="Profile card">
+          <div class="avatar" aria-hidden="false">
+            <img alt="Avatar ni Angelica" src="images/pic2.jpg" >
+          </div>
+
+          <div class="biodata">
+            <p>NAME: <strong>Angelica Abalos</strong></p>
+            <p>AGE: <strong>25</strong></p>
+            <p>ADDRESS: <strong>Dunglayan Sta. Maria Ilocos Sur</strong></p>
+            <p>HOBBIES: <strong>Reading books, Listening to music</strong></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery" aria-labelledby="gallery-title" role="region">
+      <div class="content">
+        <h2 id="gallery-title">Gallery</h2>
+
+        <!-- Gallery with larger thumbnails; each item has data-full (large image) -->
+        <ul class="gallery-list" aria-hidden="false" id="galleryList">
+          <li class="gallery-item" tabindex="0" role="button"
+              data-full="images/pic3.jpg" data-caption="Picture 1 - Flowers">
+            <img alt="Picture 1" src="images/pic3.jpg" >
+            <div class="gallery-caption">Picture 1</div>
+          </li>
+
+          <li class="gallery-item" tabindex="0" role="button"
+              data-full="images/pic4.jpg" data-caption="Picture 2 - Books">
+            <img alt="Picture 2" src="images/pic4.jpg" >
+            <div class="gallery-caption">Picture 2</div>
+          </li>
+
+          <li class="gallery-item" tabindex="0" role="button"
+              data-full="images/pic5.jpg" data-caption="Picture 3 - Music">
+            <img alt="Picture 3" src="images/pic5.jpg" >
+            <div class="gallery-caption">Picture 3</div>
+          </li>
+
+          <li class="gallery-item" tabindex="0" role="button"
+              data-full="images/pic6.jpg" data-caption="Picture 4 - Crochet">
+            <img alt="Picture 4" src="images/pic6.jpg" >
+            <div class="gallery-caption">Picture 4</div>
+          </li>
+
+          <li class="gallery-item" tabindex="0" role="button"
+              data-full="images/pic7.jpg" data-caption="Picture 5 - Kpop Poster">
+            <img alt="Picture 5" src="images/pic7.jpg" >
+            <div class="gallery-caption">Picture 5</div>
+          </li>
+           <li class="gallery-item">
+            <img alt="Gallery image 1 - flowers"  src="images/pic8.jpg" >
+            <div class="gallery-caption">Picture 6</div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="about" aria-labelledby="about-title" role="region">
+      <div class="content">
+        <h2 id="about-title">About</h2>
+        <p style="max-width:760px;">
+         Hi I'm Angelica Abalos Domingo from Dunglayan Sta. Maria Ilocos Sur.
+         A 3rd yr BSIS student. I make crochet tops, bags and flowers. I like reading Wattpad and watching K-drama.
+         I'm also a fan of ENHYPEN and BLACKPINK.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- LIGHTBOX MARKUP -->
+  <div class="lightbox-overlay" id="lightbox" aria-hidden="true" aria-modal="true" role="dialog" aria-label="Image viewer">
+    <button class="lightbox-close" id="lbClose" aria-label="Close (Esc)">✕</button>
+    <button class="lightbox-prev" id="lbPrev" aria-label="Previous (Left)">◀</button>
+    <div class="lightbox-inner" id="lbInner" role="document">
+      <img class="lightbox-img" id="lbImg" src="" alt="">
+      <div class="lightbox-caption" id="lbCaption"></div>
+    </div>
+    <button class="lightbox-next" id="lbNext" aria-label="Next (Right)">▶</button>
+  </div>
+
+  <script>
+    /* === Section navigation (no scrolling) === */
+    const navLinks = document.querySelectorAll("nav a");
+    const sections = document.querySelectorAll("main section");
+
+    function showSection(sectionId, clickedLink){
+      navLinks.forEach(l => { l.classList.remove("active"); l.setAttribute("aria-selected","false"); });
+      sections.forEach(s => s.classList.remove("active"));
+      clickedLink.classList.add("active");
+      clickedLink.setAttribute("aria-selected","true");
+      const target = document.getElementById(sectionId);
+      if(target) target.classList.add("active");
+    }
+
+    navLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const sectionId = link.dataset.section;
+        showSection(sectionId, link);
+      });
+      link.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          showSection(link.dataset.section, link);
+        }
+      });
+    });
+
+    // Support opening a section from URL hash without scrolling
+    if(window.location.hash){
+      const id = window.location.hash.slice(1);
+      const nav = Array.from(navLinks).find(n => n.dataset.section === id);
+      if(nav){
+        showSection(id, nav);
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+    }
+
+    /* === Lightbox implementation === */
+    (function() {
+      const galleryItems = Array.from(document.querySelectorAll('.gallery-item'));
+      if (!galleryItems.length) return;
+
+      const lightbox = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lbImg');
+      const lbCaption = document.getElementById('lbCaption');
+      const lbClose = document.getElementById('lbClose');
+      const lbPrev = document.getElementById('lbPrev');
+      const lbNext = document.getElementById('lbNext');
+
+      let currentIndex = 0;
+      let previouslyFocused = null;
+
+      function showIndex(index) {
+        if (index < 0) index = galleryItems.length - 1;
+        if (index >= galleryItems.length) index = 0;
+        currentIndex = index;
+
+        const item = galleryItems[currentIndex];
+        const full = item.dataset.full || item.querySelector('img').src;
+        const caption = item.dataset.caption || item.querySelector('.gallery-caption')?.textContent || '';
+
+        // set image & caption
+        lbImg.src = full;
+        lbImg.alt = item.querySelector('img').alt || caption || 'Image';
+        lbCaption.textContent = caption;
+
+        // pre-load next/prev for smoother nav
+        const nextIndex = (currentIndex + 1) % galleryItems.length;
+        const prevIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
+        [nextIndex, prevIndex].forEach(i => {
+          const img = new Image();
+          img.src = (galleryItems[i].dataset.full || galleryItems[i].querySelector('img').src);
+        });
+      }
+
+      function openLightbox(index) {
+        previouslyFocused = document.activeElement;
+        showIndex(index);
+        lightbox.classList.add('visible');
+        lightbox.setAttribute('aria-hidden', 'false');
+        // prevent background from scrolling
+        document.body.style.overflow = 'hidden';
+        // focus close button for accessibility
+        lbClose.focus();
+        document.addEventListener('keydown', onKeyDown);
+      }
+
+      function closeLightbox() {
+        lightbox.classList.remove('visible');
+        lightbox.setAttribute('aria-hidden', 'true');
+        lbImg.src = '';
+        lbCaption.textContent = '';
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', onKeyDown);
+        // restore focus
+        if (previouslyFocused && previouslyFocused.focus) previouslyFocused.focus();
+      }
+
+      function onKeyDown(e) {
+        if (e.key === 'Escape') {
+          closeLightbox();
+        } else if (e.key === 'ArrowLeft') {
+          showIndex(currentIndex - 1);
+        } else if (e.key === 'ArrowRight') {
+          showIndex(currentIndex + 1);
+        } else if (e.key === 'Tab') {
+          // keep focus inside lightbox buttons (simple trap)
+          const focusable = [lbClose, lbPrev, lbNext];
+          const idx = focusable.indexOf(document.activeElement);
+          if (e.shiftKey) {
+            // shift+tab
+            if (idx === -1 || idx === 0) {
+              e.preventDefault();
+              focusable[focusable.length - 1].focus();
+            }
+          } else {
+            if (idx === -1 || idx === focusable.length - 1) {
+              e.preventDefault();
+              focusable[0].focus();
+            }
+          }
+        }
+      }
+
+      // open on click / keyboard
+      galleryItems.forEach((item, idx) => {
+        item.addEventListener('click', () => openLightbox(idx));
+        item.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openLightbox(idx);
+          }
+        });
+      });
+
+      // controls
+      lbClose.addEventListener('click', closeLightbox);
+      lbPrev.addEventListener('click', () => showIndex(currentIndex - 1));
+      lbNext.addEventListener('click', () => showIndex(currentIndex + 1));
+
+      // click overlay to close (only when clicking outside inner content)
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+      });
+
+      // prevent clicks inside inner from closing
+      document.getElementById('lbInner').addEventListener('click', (e) => e.stopPropagation());
+    })();
+  </script>
+</body>
+</html>
